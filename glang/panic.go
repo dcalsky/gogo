@@ -8,7 +8,7 @@ import (
 	"strconv"
 )
 
-func panicDataToError(data any) error {
+func PanicDataToError(data any) error {
 	switch v := data.(type) {
 	case error:
 		return v
@@ -18,6 +18,19 @@ func panicDataToError(data any) error {
 		return errors.New(v.String())
 	default:
 		return fmt.Errorf("%v", v)
+	}
+}
+
+func PanicDataToString(data any) string {
+	switch v := data.(type) {
+	case error:
+		return v.Error()
+	case string:
+		return v
+	case fmt.Stringer:
+		return v.String()
+	default:
+		return fmt.Sprintf("%v", v)
 	}
 }
 

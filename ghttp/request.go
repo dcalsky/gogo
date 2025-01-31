@@ -8,7 +8,7 @@ import (
 	"moul.io/http2curl"
 )
 
-func getCompatRequest(req *protocol.Request) (*http.Request, error) {
+func ConvertHertzToCompatRequest(req *protocol.Request) (*http.Request, error) {
 	r, err := http.NewRequest(string(req.Method()), req.URI().String(), bytes.NewReader(req.Body()))
 	if err != nil {
 		return r, err
@@ -37,7 +37,7 @@ func DumpHertzRequest(req *protocol.Request) string {
 	if req == nil {
 		return ""
 	}
-	proxyRequest, err := getCompatRequest(req)
+	proxyRequest, err := ConvertHertzToCompatRequest(req)
 	if err != nil {
 		return ""
 	}
