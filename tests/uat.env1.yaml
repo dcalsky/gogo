@@ -1,0 +1,4 @@
+Foo: "env1"
+NestedFoo:
+  Int: 11
+  EnvOverride: "uat.env1"

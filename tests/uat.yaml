@@ -1,0 +1,5 @@
+Foo: "uat"
+NestedFoo:
+  Int: 123
+  Float: 99.99
+  EnvOverride: "uat"

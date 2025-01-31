@@ -1,0 +1,6 @@
+Foo: "foo"
+NestedFoo:
+  Int: 10
+  Float: 100.1234
+  Int2: 100
+  EnvOverride: "base"
