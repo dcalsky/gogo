@@ -4,8 +4,29 @@ import (
 	"errors"
 	"io"
 	"net/http"
+	"net/url"
 	"time"
 )
+
+func WithSkipSSLVerify() func(s *http.Client) {
+	return func(s *http.Client) {
+		s.Transport.(*http.Transport).TLSClientConfig.InsecureSkipVerify = true
+	}
+}
+
+func WithProxy(proxy string) func(s *http.Client) {
+	return func(s *http.Client) {
+		s.Transport.(*http.Transport).Proxy = func(req *http.Request) (*url.URL, error) {
+			return url.Parse(proxy)
+		}
+	}
+}
+
+func WithEnvironmentProxy() func(s *http.Client) {
+	return func(s *http.Client) {
+		s.Transport.(*http.Transport).Proxy = http.ProxyFromEnvironment
+	}
+}
 
 func NewDefaultHttpClient(opts ...func(s *http.Client)) *http.Client {
 	s := &http.Client{}
