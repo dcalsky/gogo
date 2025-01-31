@@ -5,7 +5,7 @@ import (
 )
 
 const (
-	LogIdKey = "GOGO_LOG_ID"
+	LogIdKey = "LOG_ID"
 )
 
 func ContextWithLogId(ctx context.Context, id string) context.Context {

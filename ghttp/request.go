@@ -1,4 +1,4 @@
-package base
+package ghttp
 
 import (
 	"bytes"
@@ -34,6 +34,9 @@ func DumpHttpRequest(req *http.Request) string {
 }
 
 func DumpHertzRequest(req *protocol.Request) string {
+	if req == nil {
+		return ""
+	}
 	proxyRequest, err := getCompatRequest(req)
 	if err != nil {
 		return ""

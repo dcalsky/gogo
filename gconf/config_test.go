@@ -1,4 +1,4 @@
-package base
+package gconf
 
 import (
 	"github.com/stretchr/testify/require"
@@ -27,11 +27,9 @@ type config struct {
 
 func TestUnmarshalConfFromDir(t *testing.T) {
 	s := config{}
-	os.Setenv(clusterNameKey, "uat")
-	os.Setenv(envNameKey, "env1")
 	os.Setenv("ENV_OVERRIDE", "greet")
 	os.Setenv("PURE_ENV_VALUE", "pure")
-	err := UnmarshalConfFromDir("../tests", &s)
+	err := UnmarshalConfFromDir("uat", "env1", "../tests", &s)
 	require.NoError(t, err)
 	require.Equal(t, "env1", s.Foo)
 	require.Equal(t, 11, s.NestedFoo.Int)

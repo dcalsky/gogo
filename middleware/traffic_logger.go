@@ -2,10 +2,10 @@ package middleware
 
 import (
 	"context"
-	"github.com/dcalsky/gogo/base"
-	"github.com/dcalsky/gogo/common/idgen"
-	"github.com/dcalsky/gogo/common/logid"
-	"github.com/dcalsky/gogo/common/logs"
+	"github.com/dcalsky/gogo/ghttp"
+	"github.com/dcalsky/gogo/idgen"
+	"github.com/dcalsky/gogo/logid"
+	"github.com/dcalsky/gogo/logs"
 	"time"
 
 	"github.com/cloudwego/hertz/pkg/app"
@@ -14,7 +14,7 @@ import (
 func HertzTrafficLogger() app.HandlerFunc {
 	return func(ctx context.Context, c *app.RequestContext) {
 		ctx = logid.ContextWithLogId(ctx, idgen.New[string]())
-		reqStr := base.DumpHertzRequest(&c.Request)
+		reqStr := ghttp.DumpHertzRequest(&c.Request)
 		startAt := time.Now()
 		logs.Infof(ctx, "[TrafficLogger.Request] %s, body:\n%s", startAt.Format(time.RFC3339), reqStr)
 		c.Next(ctx)

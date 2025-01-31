@@ -1,7 +1,7 @@
 package sse
 
 import (
-	"github.com/dcalsky/gogo/base"
+	"github.com/dcalsky/gogo/glang"
 	"io"
 	"strconv"
 	"strings"
@@ -110,7 +110,7 @@ func writeID(w io.Writer, id string) (err error) {
 	//if err != nil {
 	//	return
 	//}
-	_, err = w.Write(base.S2b(id))
+	_, err = w.Write(glang.S2b(id))
 	if err != nil {
 		return
 	}
@@ -131,7 +131,7 @@ func writeEvent(w io.Writer, event string) (err error) {
 	//if err != nil {
 	//	return
 	//}
-	_, err = w.Write(base.S2b(event))
+	_, err = w.Write(glang.S2b(event))
 	if err != nil {
 		return
 	}
@@ -147,7 +147,7 @@ func writeRetry(w io.Writer, retry uint64) (err error) {
 	if err != nil {
 		return
 	}
-	_, err = w.Write(base.S2b(strconv.FormatUint(retry, 10)))
+	_, err = w.Write(glang.S2b(strconv.FormatUint(retry, 10)))
 	if err != nil {
 		return
 	}
@@ -164,7 +164,7 @@ func writeData(w io.Writer, data []byte) (err error) {
 		return
 	}
 
-	_, err = dataReplacer.WriteString(w, base.B2s(data))
+	_, err = dataReplacer.WriteString(w, glang.B2s(data))
 	if err != nil {
 		return
 	}

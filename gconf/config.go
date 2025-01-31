@@ -1,10 +1,10 @@
-package base
+package gconf
 
 import (
 	"context"
 	"errors"
 	"fmt"
-	"github.com/dcalsky/gogo/common/logs"
+	"github.com/dcalsky/gogo/logs"
 	"gopkg.in/yaml.v3"
 	"os"
 	"path/filepath"
@@ -60,19 +60,17 @@ func overrideConfigFromEnv(target any) {
 	}
 }
 
-func UnmarshalConfFromDir(confDirPath string, target any) error {
+func UnmarshalConfFromDir(cluster string, env string, confDirPath string, target any) error {
 	if confDirPath == "" {
 		return errors.New("require a config dir")
 	}
 	paths := []string{
 		filepath.Join(confDirPath, "base.yaml"),
 	}
-	cluster := GetCluster()
-	envName := GetEnv()
 	if cluster != "" {
 		paths = append(paths, filepath.Join(confDirPath, fmt.Sprintf("%s.yaml", cluster)))
-		if envName != "" {
-			paths = append(paths, filepath.Join(confDirPath, fmt.Sprintf("%s.%s.yaml", cluster, envName)))
+		if env != "" {
+			paths = append(paths, filepath.Join(confDirPath, fmt.Sprintf("%s.%s.yaml", cluster, env)))
 		}
 	}
 	ctx := context.Background()

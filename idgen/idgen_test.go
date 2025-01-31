@@ -1,7 +1,7 @@
 package idgen_test
 
 import (
-	"github.com/dcalsky/gogo/common/idgen"
+	"github.com/dcalsky/gogo/idgen"
 	"testing"
 
 	"github.com/stretchr/testify/require"
