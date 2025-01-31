@@ -1,6 +1,7 @@
 package ghttp
 
 import (
+	"crypto/tls"
 	"errors"
 	"io"
 	"net/http"
@@ -10,7 +11,13 @@ import (
 
 func WithSkipSSLVerify() func(s *http.Client) {
 	return func(s *http.Client) {
-		s.Transport.(*http.Transport).TLSClientConfig.InsecureSkipVerify = true
+		if s.Transport.(*http.Transport).TLSClientConfig == nil {
+			s.Transport.(*http.Transport).TLSClientConfig = &tls.Config{
+				InsecureSkipVerify: true,
+			}
+		} else {
+			s.Transport.(*http.Transport).TLSClientConfig.InsecureSkipVerify = true
+		}
 	}
 }
 
