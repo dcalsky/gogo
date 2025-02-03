@@ -21,13 +21,13 @@ func fileExist(path string) bool {
 
 // overrideConfigFromEnv parses each fields type of `target`, if the field has `env` tag and is one of [string, int, float64, bool]:
 // replace the value with the value from env
-func overrideConfigFromEnv(confPath string, target any) {
+func overrideConfigFromEnv(confPath string, target any) error {
 	typ := reflect.TypeOf(target)
 	if typ.Kind() == reflect.Ptr {
 		typ = typ.Elem()
 	}
 	if typ.Kind() != reflect.Struct {
-		return
+		return nil
 	}
 	value := reflect.Indirect(reflect.ValueOf(target))
 	for i := 0; i < typ.NumField(); i++ {
@@ -35,7 +35,10 @@ func overrideConfigFromEnv(confPath string, target any) {
 		kind := f.Type.Kind()
 		v := value.Field(i)
 		if kind == reflect.Struct {
-			overrideConfigFromEnv(confPath, v.Addr().Interface())
+			err := overrideConfigFromEnv(confPath, v.Addr().Interface())
+			if err != nil {
+				return err
+			}
 			continue
 		} else if kind == reflect.Ptr {
 			if v.IsNil() {
@@ -45,20 +48,25 @@ func overrideConfigFromEnv(confPath string, target any) {
 				v.Set(reflect.New(f.Type.Elem()))
 			}
 			if f.Type.Elem().Kind() == reflect.Struct {
-				overrideConfigFromEnv(confPath, v.Interface())
+				err := overrideConfigFromEnv(confPath, v.Interface())
+				if err != nil {
+					return err
+				}
 				continue
 			}
 			v = v.Elem()
 		}
-		if filePath, ok := f.Tag.Lookup("file"); ok {
-			p := path.Join(confPath, filePath)
-			if fileExist(p) {
-				b, err := os.ReadFile(p)
-				if err == nil {
-					if v.CanSet() {
-						v.SetString(string(b))
-					}
-				}
+		if relativeFilePath, ok := f.Tag.Lookup("file"); ok {
+			filePath := path.Join(confPath, relativeFilePath)
+			if !fileExist(filePath) {
+				return fmt.Errorf("%s file not exist", filePath)
+			}
+			b, err := os.ReadFile(filePath)
+			if err != nil {
+				return err
+			}
+			if v.CanSet() {
+				v.SetString(string(b))
 			}
 		}
 		if envName, ok := f.Tag.Lookup("env"); ok {
@@ -69,6 +77,7 @@ func overrideConfigFromEnv(confPath string, target any) {
 			}
 		}
 	}
+	return nil
 }
 
 func UnmarshalConfFromDir(cluster string, env string, confDirPath string, target any) error {
@@ -100,6 +109,5 @@ func UnmarshalConfFromDir(cluster string, env string, confDirPath string, target
 		}
 	}
 
-	overrideConfigFromEnv(confDirPath, target)
-	return nil
+	return overrideConfigFromEnv(confDirPath, target)
 }
