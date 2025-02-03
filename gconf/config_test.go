@@ -7,11 +7,12 @@ import (
 )
 
 type nestedFoo struct {
-	Int          int     `yaml:"Int"`
-	Float        float64 `yaml:"Float"`
-	Int2         int     `yaml:"Int2"`
-	EnvOverride  *string `yaml:"EnvOverride" env:"ENV_OVERRIDE"`
-	PureEnvValue *string `env:"PURE_ENV_VALUE"`
+	Int            int     `yaml:"Int"`
+	Float          float64 `yaml:"Float"`
+	Int2           int     `yaml:"Int2"`
+	EmbeddingText1 string  `file:"./text/1.txt"`
+	EnvOverride    *string `yaml:"EnvOverride" env:"ENV_OVERRIDE"`
+	PureEnvValue   *string `env:"PURE_ENV_VALUE"`
 }
 
 type nestedFoo3 struct {
@@ -41,4 +42,7 @@ func TestUnmarshalConfFromDir(t *testing.T) {
 	require.Equal(t, "pure", *s.NestedFoo.PureEnvValue)
 	require.Nil(t, s.NestedFoo2)
 	require.Nil(t, s.NestedFoo3)
+	require.Equal(t, `hello
+greeting!
+让我们说中文？`, s.NestedFoo.EmbeddingText1)
 }

@@ -7,6 +7,7 @@ import (
 	"github.com/dcalsky/gogo/logs"
 	"gopkg.in/yaml.v3"
 	"os"
+	"path"
 	"path/filepath"
 	"reflect"
 )
@@ -20,7 +21,7 @@ func fileExist(path string) bool {
 
 // overrideConfigFromEnv parses each fields type of `target`, if the field has `env` tag and is one of [string, int, float64, bool]:
 // replace the value with the value from env
-func overrideConfigFromEnv(target any) {
+func overrideConfigFromEnv(confPath string, target any) {
 	typ := reflect.TypeOf(target)
 	if typ.Kind() == reflect.Ptr {
 		typ = typ.Elem()
@@ -34,7 +35,7 @@ func overrideConfigFromEnv(target any) {
 		kind := f.Type.Kind()
 		v := value.Field(i)
 		if kind == reflect.Struct {
-			overrideConfigFromEnv(v.Addr().Interface())
+			overrideConfigFromEnv(confPath, v.Addr().Interface())
 			continue
 		} else if kind == reflect.Ptr {
 			if v.IsNil() {
@@ -44,11 +45,21 @@ func overrideConfigFromEnv(target any) {
 				v.Set(reflect.New(f.Type.Elem()))
 			}
 			if f.Type.Elem().Kind() == reflect.Struct {
-				overrideConfigFromEnv(v.Interface())
+				overrideConfigFromEnv(confPath, v.Interface())
 				continue
 			}
 			v = v.Elem()
-
+		}
+		if filePath, ok := f.Tag.Lookup("file"); ok {
+			p := path.Join(confPath, filePath)
+			if fileExist(p) {
+				b, err := os.ReadFile(p)
+				if err == nil {
+					if v.CanSet() {
+						v.SetString(string(b))
+					}
+				}
+			}
 		}
 		if envName, ok := f.Tag.Lookup("env"); ok {
 			if envValue, exist := os.LookupEnv(envName); exist {
@@ -89,6 +100,6 @@ func UnmarshalConfFromDir(cluster string, env string, confDirPath string, target
 		}
 	}
 
-	overrideConfigFromEnv(target)
+	overrideConfigFromEnv(confDirPath, target)
 	return nil
 }
